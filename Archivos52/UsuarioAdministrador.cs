@@ -21,7 +21,6 @@ namespace Archivos52
         {
 			this._persona = persona;
         }
-
 		
 
 		public void MenuAdministrador(List<Persona> persona)
@@ -76,82 +75,7 @@ namespace Archivos52
 			return -1;
 		}
 
-		
-
-		/* Readonly me permite que este diccionario no se reemplaze por otro */
-		protected static readonly Dictionary<int, Persona> personaAgenda; 
-
-		/* No lleva parametros porque la linea de ejecucion no puede llevarlos.
-		   No puede ser Publico o privado porque una clase estatica tendra un constructor estatico */
-
-		static string nombreArchivo = "agenda.txt";
-		static UsuarioAdministrador()
-		{
-			/* File nos permite administrar archivos como un todo. 
-			   StreamReader Leer archivos. 
-			   StreamWriter Escribir Archivos. */
-			/* Necesito trabajar con el nombre del archivo y que nunca con la ruta porque el sistema lo hace */
-			if(File.Exists(nombreArchivo))
-            {
-				/* OpenRead = el sistema operativo lo va leyendo a medida que yo se lo requiera 
-				              es siempre secuencial y no se puede volver. "Es como ver una peli en vivo" */
-				/* var stream = File.OpenRead(nombreArchivo);*/
-
-				/*  */
-				using (var reader = new StreamReader(nombreArchivo))
-                {
-					/* El archivo se lee en .net mientras se utilice este archivo hasta que se cierre. */
-					while (!reader.EndOfStream)
-                    {
-						var linea = reader.ReadLine();
-						var persona = new Persona(linea);
-						personaAgenda.Add(persona.Dni, persona);
-                    }
-                }
-
-
-            }
-		}
-
-
-
-		public static void AgregarPersonaAgenda(Persona persona)
-        {
-			personaAgenda.Add(persona.Dni, persona);
-			/*Grabar();*/
-        }
-
-		public static void EliminarPersonaAgenda(Persona persona)
-		{
-			personaAgenda.Remove(persona.Dni);
-			/*Grabar();*/
-		}
-
-		/*private static void Grabar()
-        {
-			using (var writer = new StreamWriter(nombreArchivo))
-            {
-				foreach(var persona in personaAgenda.Values)
-                {
-					var linea = persona.ObtenerLineaDatos();
-					writer.WriteLine(linea);	 
-                }
-            }
-
-
-        }*/
-
-		/*public string ObtenerLineaDatos()
-        {*/
-			/*return $"{Dni}";*//*
-        } */
-		
-
-		public static bool PersonaAgendaExiste(int dni)
-		{
-			return personaAgenda.ContainsKey(dni);
-		}
-
+		Dictionary<int, Persona> personaAgenda = new Dictionary<int, Persona>();
 		
 		protected override void DarAltaPersona()
 		{
@@ -183,8 +107,10 @@ namespace Archivos52
                 {
 					Persona p = new Persona(dni, nombre, apellido, telefono, fechaNacimiento);
 					AddPersona(p);
+					personaAgenda.Add(dni,p);
 					VerPersona();
-					Console.WriteLine("\nPersona con DNI *" + dni + " y nombre *" + nombre + "* agregado exitósamente");
+					VerPersonaDiccionario();
+					Console.WriteLine("\n Persona con DNI *" + dni + " y nombre *" + nombre + "* agregado exitósamente");
 					Validador.VolverMenu();
 				}
 				else
@@ -213,8 +139,54 @@ namespace Archivos52
 			this._persona.Add(persona);
 		}
 
+		public void RemoverPersona(int pos)
+		{
+			this._persona.RemoveAt(pos);
+		}
+
 		protected override void DarBajaPersona()
 		{
+			int dni;
+			string confirmacion;
+
+			VerPersona();
+			dni = Validador.PedirIntMenu("\n Ingrese el DNI de la Persona a agregar. El valor debe ser entre ", 0, 99999999);
+
+			
+			if (BuscarPersonaDni(dni) != -1)
+			{
+
+				VerPersona();
+				
+				confirmacion = ValidarSioNoPersonaCreada("\n\n Está seguro que desea eliminar esta Persona?", dni);
+
+				if (confirmacion == "SI")
+				{
+					personaAgenda.Remove(dni);
+					RemoverPersona(BuscarPersonaDni(dni));
+					VerPersona();
+					
+					VerPersonaDiccionario();
+					Console.WriteLine("\n Persona eliminada exitósamente");
+					Validador.VolverMenu();
+				}
+				else
+				{
+					VerPersona();
+					Console.WriteLine("\n Como puede apreciar la Persona no ha sido eliminada");
+					Validador.VolverMenu();
+				}
+
+			}
+			else
+			{
+				Console.Clear();
+				VerPersona();
+				Console.WriteLine("\n No existe una Persona con este Dni *" + dni + "*. " +
+								  "\n\n Vuelva a intentarlo ingresando el valor de uno de los DNI que ve en la lista " +
+								  "la siguiente vez");
+				Validador.VolverMenu();
+			}
 
 		}
 
@@ -370,7 +342,29 @@ namespace Archivos52
 
 		}
 
+		public void VerPersonaDiccionario()
+        {
+			Console.WriteLine("\n Personas en el Diccionario");
+			for (int i = 0; i < personaAgenda.Count; i++)
+            {
+				KeyValuePair<int, Persona> persona = personaAgenda.ElementAt(i);
+				
+				Console.WriteLine("\n Dni: " + persona.Key);
+				Persona personaValor = persona.Value;
+
+				Console.WriteLine(" Nombre Persona: " + personaValor.Nombre);
+				Console.WriteLine(" Apellido Persona: " + personaValor.Apellido);
+				Console.WriteLine(" Telefono Persona: " + personaValor.Telefono);
+				Console.WriteLine(" Fecha de Nacimiento Persona: " + personaValor.FechaNacimiento);
+
+			}
+
+			
+        }
+
+        
 
 
-	}
+
+    }
 }
