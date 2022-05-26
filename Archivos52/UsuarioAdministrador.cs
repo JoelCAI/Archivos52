@@ -192,7 +192,24 @@ namespace Archivos52
 
 		protected override void GrabarPersonaAgenda()
 		{
-			
+			using (var archivoAgenda = new FileStream("archivoAgenda.txt",FileMode.Create))
+            {
+				using (var archivoEscrituraAgenda = new StreamWriter(archivoAgenda))
+                {
+					foreach (var persona in personaAgenda.Values)
+                    {
+						
+						var linea = "\n Dni de la Persona: " + persona.Dni + 
+									"\n Nombre de la Persona: " + persona.Nombre;
+						archivoEscrituraAgenda.WriteLine(linea);
+						
+					}
+					
+                }
+            }
+			VerPersona();
+			Console.WriteLine("Se ha grabado los datos de las personas en la Agenda correctamente");
+			Validador.VolverMenu();
 
 		}
 
