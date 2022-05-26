@@ -54,7 +54,6 @@ namespace Archivos52
 						break;
 					case 4:
 						LeerAgenda();
-						Validador.VolverMenu();
 						break;
 					case 5:
 						break;
@@ -200,7 +199,10 @@ namespace Archivos52
                     {
 						
 						var linea = "\n Dni de la Persona: " + persona.Dni + 
-									"\n Nombre de la Persona: " + persona.Nombre;
+									"\n Nombre de la Persona: " + persona.Nombre +
+									"\n Apellido de la Persona: " + persona.Apellido +
+									"\n Teléfono de la Persona: " + persona.Telefono +
+									"\n Fecha de Nacimiento de la Persona: " + persona.FechaNacimiento;
 						archivoEscrituraAgenda.WriteLine(linea);
 						
 					}
@@ -215,6 +217,24 @@ namespace Archivos52
 
 		protected override void LeerAgenda()
 		{
+			Console.Clear();
+			Console.WriteLine("\n Personas en la agenda: ");
+			using (var archivoAgenda = new FileStream("archivoAgenda.txt", FileMode.Open))
+			{
+				using (var archivoLecturaAgenda = new StreamReader(archivoAgenda))
+				{
+					foreach (var persona in personaAgenda.Values)
+					{
+
+						
+						Console.WriteLine(archivoLecturaAgenda.ReadToEnd());
+						
+
+					}
+
+				}
+			}
+			Validador.VolverMenu();
 
 		}
 
